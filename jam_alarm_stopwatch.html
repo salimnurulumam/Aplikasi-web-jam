@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Jam Digital + Alarm + Stopwatch</title>
+  <style>
+    body {
+      background-color: black;
+      color: #7FFF00;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      height: 100vh;
+      margin: 0;
+    }
+    .clock {
+      font-size: 60px;
+      text-shadow: 0 0 15px #7FFF00;
+    }
+    input, button {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin-top: 5px;
+    }
+    .section {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock">00:00:00</div>
+
+  <div class="section">
+    <h3>⏰ Alarm</h3>
+    <input type="time" id="alarmTime">
+    <button onclick="setAlarm()">Set Alarm</button>
+    <p id="alarmStatus">Alarm belum disetel</p>
+  </div>
+
+  <div class="section">
+    <h3>⏱️ Stopwatch</h3>
+    <div id="stopwatch">00:00:00</div>
+    <button onclick="startStopwatch()">Start</button>
+    <button onclick="pauseStopwatch()">Pause</button>
+    <button onclick="resetStopwatch()">Reset</button>
+  </div>
+
+  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+
+  <script>
+    // Jam Digital
+    function updateClock() {
+      const now = new Date();
+      const jam = String(now.getHours()).padStart(2, '0');
+      const menit = String(now.getMinutes()).padStart(2, '0');
+      const detik = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${jam}:${menit}:${detik}`;
+
+      // Alarm check
+      const alarmTime = document.getElementById("alarmTime").value;
+      const alarmStatus = document.getElementById("alarmStatus");
+      if (alarmTime && `${jam}:${menit}` === alarmTime) {
+        document.getElementById("alarmSound").play();
+        alarmStatus.textContent = "⏰ ALARM BERBUNYI!";
+        document.getElementById("alarmTime").value = "";
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Set Alarm
+    function setAlarm() {
+      const time = document.getElementById("alarmTime").value;
+      const status = document.getElementById("alarmStatus");
+      if (time) {
+        status.textContent = `Alarm disetel untuk ${time}`;
+      } else {
+        status.textContent = "Masukkan waktu alarm terlebih dahulu";
+      }
+    }
+
+    // Stopwatch
+    let stopwatchInterval;
+    let stopwatchTime = 0;
+
+    function updateStopwatchDisplay() {
+      const hours = String(Math.floor(stopwatchTime / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((stopwatchTime % 3600) / 60)).padStart(2, '0');
+      const seconds = String(stopwatchTime % 60).padStart(2, '0');
+      document.getElementById("stopwatch").textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    function startStopwatch() {
+      if (!stopwatchInterval) {
+        stopwatchInterval = setInterval(() => {
+          stopwatchTime++;
+          updateStopwatchDisplay();
+        }, 1000);
+      }
+    }
+
+    function pauseStopwatch() {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+    }
+
+    function resetStopwatch() {
+      pauseStopwatch();
+      stopwatchTime = 0;
+      updateStopwatchDisplay();
+    }
+  </script>
+</body>
+</html>
